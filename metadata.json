@@ -1,0 +1,6 @@
+{
+  "name": "SeeWithSound",
+  "description": "Screen Reader Simulator to experience the web like a blind user",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
