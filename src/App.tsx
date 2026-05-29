@@ -1440,7 +1440,7 @@ export default function App() {
                   <option>Searching local browser voices...</option>
                 ) : (
                   voices.map((v) => (
-                    <option key={v.voiceURI} class="bg-[#0E0E10] text-white" value={v.voiceURI}>
+                    <option key={v.voiceURI} className="bg-[#0E0E10] text-white" value={v.voiceURI}>
                       {v.name} ({v.lang})
                     </option>
                   ))
