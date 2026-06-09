@@ -3,11 +3,564 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SeeWithSound - Screen Reader Simulator</title>
+    <title>SEEWITHSOUND &bull; Screen Reader Simulator</title>
+    <!-- Imports style overrides and the Tailwind integration built via Vite -->
+    <link rel="stylesheet" href="/src/index.css" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="min-h-screen bg-[#070708] text-[#FFFFFF] py-6 px-4 font-sans leading-relaxed selection:bg-[#CCFF00] selection:text-black">
+    
+    <!-- Outer Application Box -->
+    <div class="max-w-7xl mx-auto bg-[#0E0E10] border border-[#1F1F23] p-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
+      
+      <!-- App Header Block -->
+      <header class="border-b border-[#1F1F24] pb-5 mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest uppercase px-2.5 py-1 bg-neutral-900 border border-neutral-800 text-[#CCFF00] mb-3">
+            <span class="w-1.5 h-1.5 bg-[#CCFF00] rounded-full animate-ping"></span>
+            ASSISTIVE ENGINE ONLINE
+          </div>
+          <h1 class="font-display font-black text-3xl sm:text-4xl tracking-tight">
+            SEE<span class="text-[#CCFF00]">WITH</span>SOUND
+          </h1>
+          <p class="font-display text-xs sm:text-sm font-medium tracking-wide text-neutral-400 mt-1 uppercase">
+            Experience the web like a blind user &bull; Screen Reader Simulator
+          </p>
+        </div>
+        <div>
+          <button
+            id="export-app-btn"
+            data-desc="Click to download this screen reader simulator as an independent, fully-functional standalone HTML/JS single file."
+            class="px-4 py-2 bg-neutral-900 border border-neutral-800 hover:border-[#CCFF00] hover:text-[#CCFF00] text-sm font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 accessible-focus"
+            aria-label="Export static standalone file version of the simulator"
+          >
+            <!-- SVG download icon -->
+            <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export Standalone HTML
+          </button>
+        </div>
+      </header>
+
+      <!-- Keyboard Navigation HUD -->
+      <div class="bg-[#141417] border border-[#1F1F23] border-l-4 border-[#CCFF00] text-neutral-300 p-4 mb-6 text-xs sm:text-sm flex gap-3 items-start">
+        <!-- SVG info icon -->
+        <svg class="w-5 h-5 text-[#CCFF00] shrink-0 mt-0.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <div>
+          <span class="font-bold text-white">Keyboard Navigation HUD:</span> Explore this dashboard solely via accessibility shortcuts! 
+          Use <kbd class="bg-neutral-950 border border-neutral-800 text-white px-1.5 py-0.5 rounded-sm font-mono text-xs">Tab</kbd> to change focused targets, 
+          <kbd class="bg-neutral-950 border border-neutral-800 text-white px-1.5 py-0.5 rounded-sm font-mono text-xs">Space</kbd> to play/pause speech, and 
+          <kbd class="bg-neutral-950 border border-neutral-800 text-white px-1.5 py-0.5 rounded-sm font-mono text-xs">Escape</kbd> to interrupt. Adjust speech rates using 
+          <kbd class="bg-neutral-950 border border-neutral-800 text-white px-1.5 py-0.5 rounded-sm font-mono text-xs">[</kbd> and 
+          <kbd class="bg-neutral-950 border border-neutral-800 text-white px-1.5 py-0.5 rounded-sm font-mono text-xs">]</kbd>.
+        </div>
+      </div>
+
+      <!-- Real-Time Telemetry Subtitle HUD -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2 px-1">
+          <label class="block text-[10px] font-mono font-bold uppercase tracking-widest text-[#CCFF00]">
+            Real-Time Audio Telemetry Subtitle HUD
+          </label>
+          <span class="text-[9px] font-mono text-neutral-500 uppercase tracking-widest">OUTPUT: SYNTHETIC_v2.5_VANILLA</span>
+        </div>
+        <div 
+          id="accessibility-hud"
+          class="p-4 bg-[#070709] border border-neutral-800 border-l-4 border-[#CCFF00] text-[#CCFF00] font-mono text-sm shadow-inner min-h-[64px] flex items-center justify-between"
+          role="status" 
+          aria-live="assertive"
+        >
+          <span class="tracking-tight select-all">&gt; Ready. Focus an interactive element or click 'Start Reading'.</span>
+          <span id="live-audio-active-badge" class="hidden text-[#CCFF00] text-xs font-bold animate-pulse uppercase flex items-center gap-1.5 shrink-0 bg-[#CCFF00]/10 border border-[#CCFF00]/20 px-2.5 py-1">
+            <span class="w-2 h-2 rounded-full bg-[#CCFF00]"></span> Live Audio Active
+          </span>
+        </div>
+      </div>
+
+      <!-- High-Impact Stat Strip Banner -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1F1F24] border border-[#1F1F24] mb-8" aria-label="Visual Impairment Statistics">
+        <div class="p-6 bg-[#0E0E10]">
+          <span class="block font-display font-black text-3xl sm:text-4xl text-[#CCFF00] tracking-tight mb-2">285,000,000+</span>
+          <p class="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+            individuals globally live with visual impairments. Approximately <strong class="text-white font-medium">39 million</strong> are completely blind and rely on sequential audio feedback to parse pages.
+          </p>
+        </div>
+        <div class="p-6 bg-[#0E0E10]">
+          <span class="block font-display font-black text-3xl sm:text-4xl text-[#CCFF00] tracking-tight mb-2">98.1% WCAG FAIL</span>
+          <p class="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+            of the world's top 1,000,000 index pages carry critical compliance issues, isolating screen readers and causing severe document outline navigation failures.
+          </p>
+        </div>
+      </section>
+
+      <!-- Main Workstation Panel (Bento Grid) -->
+      <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-[#1F1F24] pb-6">
+        
+        <!-- Input Panel (Col span 7) -->
+        <section class="lg:col-span-7 flex flex-col" aria-label="Input control canvas">
+          <div class="flex items-center justify-between border-b border-[#1F1F24] pb-2 mb-4">
+            <h2 class="font-display font-bold text-sm sm:text-base uppercase tracking-wider flex items-center gap-2">
+              <!-- SVG file-text icon -->
+              <svg class="w-4 h-4 text-[#CCFF00] fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <line x1="10" y1="9" x2="8" y2="9"/>
+              </svg>
+              The Input Canvas
+            </h2>
+            <span class="px-2 py-0.5 text-[9px] font-mono font-bold uppercase border border-neutral-800 bg-[#070709] text-neutral-400">
+              ACTIVE_BUFFER
+            </span>
+          </div>
+
+          <!-- Interactive Presets Row -->
+          <div class="flex gap-2 overflow-x-auto pb-3 mb-3 shrink-0 scrollbar-none" aria-label="Preset Text Scenarios">
+            <button
+              id="preset-standard-btn"
+              data-desc="Load a beautifully styled, hierarchical blog scenario that screen readers can skip through easily."
+              class="px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer transition-all bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)] accessible-focus"
+              aria-label="Preset scenario: Accessible Structure"
+            >
+              Accessible Structure
+            </button>
+            <button
+              id="preset-bad_alt-btn"
+              data-desc="Load a puzzle showcasing the frustration when alternate tags for graphics are missing."
+              class="px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer transition-all bg-[#141417] text-neutral-400 border-[#1F1F23] hover:text-white hover:bg-neutral-800 accessible-focus"
+              aria-label="Preset scenario: Alt-Text Mystery Safari"
+            >
+              Alt-Text Mystery Safari
+            </button>
+            <button
+              id="preset-data_table-btn"
+              data-desc="Load a comparison showcasing the extreme difference between visual layout boxes and proper data-table codes."
+              class="px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer transition-all bg-[#141417] text-neutral-400 border-[#1F1F23] hover:text-white hover:bg-neutral-800 accessible-focus"
+              aria-label="Preset scenario: The Data Grid Contrast"
+            >
+              The Data Grid Contrast
+            </button>
+            <button
+              id="preset-custom-btn"
+              data-desc="Clear the board to write or paste your own custom words and check them in real time."
+              class="px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer transition-all bg-[#141417] text-neutral-400 border-[#1F1F23] hover:text-white hover:bg-neutral-800 accessible-focus"
+              aria-label="Preset scenario: Custom Workspace Canvas"
+            >
+              Custom Workspace Canvas
+            </button>
+          </div>
+
+          <!-- Presets Descriptions contexts -->
+          <p id="preset-desc-label" class="text-xs text-neutral-400 font-mono mb-3 min-h-[44px] flex items-center gap-1.5 bg-[#070709] p-2 border border-neutral-850">
+            <span class="text-[#CCFF00] font-bold">&gt;&gt;</span>
+            An optimized article with hierarchical headings (H1, H2) demonstrating effortless jumping via standard screen-reading keyboard macros.
+          </p>
+
+          <textarea
+            id="paragraph-input-area"
+            data-desc="This is the playground input cell. Type or paste code strings here."
+            placeholder="Type or paste descriptive copy lines here..."
+            class="w-full h-80 sm:h-[350px] border border-neutral-850 bg-[#070709] p-4 font-mono text-sm leading-relaxed text-white resize-none focus:outline-none focus:border-[#CCFF00]/50 transition-all duration-100 accessible-focus"
+            aria-label="Screen reader text content input block"
+          ></textarea>
+          
+          <div class="text-right text-[10px] font-mono text-neutral-500 mt-2 flex justify-between px-1">
+            <span>STATUS: READY_TO_SPEAK</span>
+            <span id="stats-label">CHARACTERS: 0 &bull; WORDS: 0</span>
+          </div>
+        </section>
+
+        <!-- Parameters Panel (Col span 5) -->
+        <section class="lg:col-span-5 flex flex-col justify-start" aria-label="Speech synthesis controls">
+          <div class="flex items-center justify-between border-b border-[#1F1F24] pb-2 mb-4">
+            <h2 class="font-display font-bold text-sm sm:text-base uppercase tracking-wider flex items-center gap-2">
+              <!-- SVG sliders icon -->
+              <svg class="w-4 h-4 text-[#CCFF00] fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+                <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+                <line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="8" x2="14" y2="8"/>
+                <line x1="18" y1="16" x2="22" y2="16"/>
+              </svg>
+              Synth Parameters
+            </h2>
+            
+            <!-- Eq Bars animations -->
+            <div id="visual-eq" class="h-4 flex items-end gap-1.5 px-2" aria-hidden="true">
+              <span class="w-1 h-1 bg-neutral-700 rounded-full eq-col" style="animation-delay: 0s; transform-origin: bottom;"></span>
+              <span class="w-1 h-1 bg-neutral-700 rounded-full eq-col" style="animation-delay: 0.12s; transform-origin: bottom;"></span>
+              <span class="w-1 h-1 bg-neutral-700 rounded-full eq-col" style="animation-delay: 0.24s; transform-origin: bottom;"></span>
+              <span class="w-1 h-1 bg-neutral-700 rounded-full eq-col" style="animation-delay: 0.36s; transform-origin: bottom;"></span>
+              <span class="w-1 h-1 bg-neutral-700 rounded-full eq-col" style="animation-delay: 0.48s; transform-origin: bottom;"></span>
+            </div>
+          </div>
+
+          <!-- Voice Dropdown Selection -->
+          <div class="mb-4">
+            <label htmlFor="voice-dropdown" class="block text-[10px] font-mono font-bold uppercase tracking-widest mb-1.5 text-neutral-455">
+              Synthetic speech voice profile selection
+            </label>
+            <select
+              id="voice-dropdown"
+              data-desc="This dropdown lists the vocal speech engines installed on your browser."
+              class="w-full text-xs font-mono border border-neutral-800 p-2.5 bg-[#070709] text-white cursor-pointer focus:outline-none focus:border-[#CCFF00] accessible-focus"
+              aria-label="Interactive TTS Voice selector"
+            >
+              <option>Searching local browser voices...</option>
+            </select>
+          </div>
+
+          <!-- Speed Rate Range slider -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+              <label htmlFor="rate-input-slider" class="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-455">
+                Aural Rate Speed
+              </label>
+              <span id="rate-val-indicator" class="font-mono text-xs font-bold bg-[#141417] text-[#CCFF00] border border-neutral-800 px-1.5 py-0.5">
+                1.0x
+              </span>
+            </div>
+            <input
+              type="range"
+              id="rate-input-slider"
+              data-desc="Adjust speed from slow (0.5x) to extremely fast (3.0x)."
+              min="0.5"
+              max="3.0"
+              step="0.1"
+              value="1.0"
+              class="w-full h-1 cursor-pointer bg-neutral-800 rounded-lg appearance-none accent-[#CCFF00] accessible-focus"
+              aria-label="Interactive spoken rate control slider"
+            />
+          </div>
+
+          <!-- Pitch range slider -->
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-1">
+              <label htmlFor="pitch-input-slider" class="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-455">
+                Voice Pitch Level
+              </label>
+              <span id="pitch-val-indicator" class="font-mono text-xs font-bold bg-[#141417] text-[#CCFF00] border border-neutral-800 px-1.5 py-0.5">
+                1.0
+              </span>
+            </div>
+            <input
+              type="range"
+              id="pitch-input-slider"
+              data-desc="Adjust tone from deep bass (0.5) to soprano highs (2.0)."
+              min="0.5"
+              max="2.0"
+              step="0.1"
+              value="1.0"
+              class="w-full h-1 cursor-pointer bg-neutral-800 rounded-lg appearance-none accent-[#CCFF00] accessible-focus"
+              aria-label="Interactive spoken pitch control slider"
+            />
+          </div>
+
+          <!-- Synth Control Triggers -->
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <button
+              id="start-speak-btn"
+              data-desc="Vocalize current canvas drafts using browser text-to-speech."
+              class="col-span-2 py-3 bg-[#CCFF00] hover:bg-[#e2ff42] border border-[#CCFF00] text-black font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] shadow-[0_0_15px_rgba(204,255,0,0.15)] accessible-focus"
+              aria-label="Start vocalizing standard canvas draft"
+            >
+              <!-- Play svg -->
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="m8 5 14 7-14 7V5z"/></svg>
+              Start Reading
+            </button>
+
+            <button
+              id="pause-speak-btn"
+              data-desc="Pause speech loop, or resume a suspended voice queue."
+              class="py-2.5 bg-[#0E0E10] hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 font-mono font-bold text-xs uppercase flex items-center justify-center gap-2 cursor-pointer transition-all accessible-focus"
+              aria-label="Pause or Resume current vocal feed"
+            >
+              <!-- Pause svg -->
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+              Pause
+            </button>
+
+            <button
+              id="stop-speak-btn"
+              data-desc="Stop vocalizer, clear active queues, and reset highlight indexes."
+              class="py-2.5 bg-[#0E0E10] hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 font-mono font-bold text-xs uppercase flex items-center justify-center gap-2 cursor-pointer transition-all accessible-focus"
+              aria-label="Stop vocal speech feedback"
+            >
+              <!-- Stop svg -->
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>
+              Stop
+            </button>
+          </div>
+
+          <!-- Immersive Blind Mode Toggler -->
+          <div class="mt-8 p-4 border border-[#CCFF00]/20 bg-[#CCFF00]/5 rounded-sm relative overflow-hidden">
+            <div class="flex items-center gap-2 mb-2 font-display font-bold text-[#CCFF00] text-xs uppercase tracking-wider">
+              <!-- SVG accessibility icon -->
+              <svg class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span>Simulate Complete Blindness</span>
+            </div>
+            <p class="text-[11px] text-neutral-400 mb-4 leading-normal font-mono">
+              Blacks out the entire screen viewport so that you can challenge your motor and auditory memory boundaries by navigating solely via assistive hotkeys.
+            </p>
+            <button
+              id="eyes-blackout-toggle-btn"
+              data-desc="Activate eyes-closed blackout challenge mode. Re-opens layout on pressing Escape."
+              class="w-full py-2.5 bg-neutral-900 border border-neutral-800 hover:border-[#CCFF00] hover:text-[#CCFF00] text-[#CCFF00] font-mono font-bold text-xs uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2 accessible-focus"
+              aria-label="Toggle Eyes-Closed Simulator blind mode overlay"
+            >
+              <!-- EyeOff svg -->
+              <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              Activate Eyes-Closed Sim (Esc)
+            </button>
+          </div>
+
+        </section>
+      </main>
+
+      <!-- Live Highlighter Segment Row -->
+      <section class="mt-8 p-5 border border-[#1F1F24] bg-[#0E0E10] rounded-sm" aria-label="Interactive visual streaming logs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1F1F24] pb-2 mb-4 gap-2">
+          <h3 class="font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-2 text-[#CCFF00]">
+            <!-- Accessibility SVG -->
+            <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M18 21a6 6 0 0 0-12 0"/>
+              <circle cx="12" cy="10" r="4"/>
+              <path d="M12 2v2"/>
+            </svg>
+            Interactive Audio Word Streamer
+          </h3>
+          <span class="text-[10px] font-mono bg-neutral-900 border border-neutral-800 text-neutral-400 px-2 py-0.5">
+            Realtime High-Contrast Visual Speech Output
+          </span>
+        </div>
+
+        <div 
+          id="highlight-board-viewport"
+          class="p-4 bg-[#070709] border border-neutral-850 max-h-48 overflow-y-auto leading-loose text-base font-medium rounded-xs"
+          style="scroll-behavior: smooth;"
+        >
+          <span class="text-neutral-500 italic font-mono text-xs">&gt; Write paragraphs in the input block to observe highlighting telemetry.</span>
+        </div>
+      </section>
+
+      <!-- Educational Guidelines Segment -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1F1F24] border border-[#1F1F24] mt-8" aria-label="Educational Resources">
+        <div class="p-6 bg-[#0E0E10] flex gap-4">
+          <!-- Info SVG -->
+          <svg class="w-8 h-8 text-[#CCFF00] shrink-0 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <div>
+            <h3 class="font-display font-medium text-sm text-white uppercase tracking-wider mb-2">How Screen Readers Operate</h3>
+            <p class="text-neutral-400 text-xs leading-relaxed">
+              Screen readers synthesize speech by scanning document structures sequentially. Blind developers navigate via key commands to leap across page targets:
+            </p>
+            <ul class="list-disc pl-5 mt-3 text-[11px] text-[#CCFF00] font-mono space-y-1.5">
+              <li><strong>H Key:</strong> Leap directly to next Heading layouts.</li>
+              <li><strong>L Key:</strong> Travel straight to next logical Link.</li>
+              <li><strong>T Key:</strong> Land inside active Table grids.</li>
+              <li><strong>G Key:</strong> Announces alternative text for Graphic assets.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-6 bg-[#0E0E10] flex gap-4">
+          <!-- Accessibility SVG -->
+          <svg class="w-8 h-8 text-[#CCFF00] shrink-0 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M18 21a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><path d="M12 2v2"/>
+          </svg>
+          <div>
+            <h3 class="font-display font-medium text-sm text-white uppercase tracking-wider mb-2">Catering to Inclusive Design</h3>
+            <p class="text-neutral-400 text-xs leading-relaxed">
+              Creating modern digital solutions requires complete HTML integrity:
+            </p>
+            <ul class="list-decimal pl-5 mt-3 text-[11px] text-neutral-400 font-mono space-y-1.5">
+              <li>Use <code class="bg-neutral-900 border border-neutral-800 text-white px-1.5 rounded-sm">&lt;button&gt;</code> instead of mapping clicking triggers to empty <code class="text-white">&lt;div&gt;</code>s.</li>
+              <li>No vague references like "click here". Provide targets: "Download Assessment Docs".</li>
+              <li>Always apply valid alt description overrides so screen readers can paint graphics to memory.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Eyes-Closed Simulator Immersive Blackout Panel Overlay -->
+    <div 
+      id="eyes-closed-overlay" 
+      class="fixed inset-0 bg-[#070708] text-white z-[9999] flex flex-col items-center justify-center p-6 text-center overflow-y-auto hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Immersive Screen Reader Challenge Modal"
+    >
+      <div class="max-w-2xl w-full bg-[#0E0E10] border border-[#1F1F24] p-6 sm:p-12 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-[#CCFF00]"></div>
+        
+        <!-- Toggle close button top -->
+        <button 
+          id="close-eyes-toggle-exit-btn"
+          data-desc="Exit simulated blackout blind playground and restore visibility."
+          class="absolute top-4 right-4 text-neutral-500 hover:text-[#CCFF00] focus:outline-none accessible-focus cursor-pointer"
+          aria-label="Exit simulated eyes closed view"
+        >
+          <!-- SVG Close -->
+          <svg class="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="inline-flex items-center gap-1.5 border border-red-500/30 text-red-500 text-[9px] font-mono uppercase tracking-widest px-3 py-1 bg-red-950/20 mb-6 rounded-xs">
+          <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+          Imbalance & Visual Obstacles Active
+        </div>
+        
+        <h2 class="font-display font-black text-2xl sm:text-3xl text-white uppercase tracking-wider mb-3">
+          EMPATHY CONSOLE INITIATED
+        </h2>
+        <p class="text-neutral-400 text-xs sm:text-sm mb-8 leading-relaxed max-w-lg mx-auto font-mono">
+          The GUI viewport is completely dark. Practice sequential browsing. Use audio telemetry subtitles and keyboard actions to navigate these virtual rooms!
+        </p>
+
+        <!-- Challenge Navigation Tabs -->
+        <div class="mb-6 flex gap-2 justify-center flex-wrap" aria-label="Obstacle Challenge Rooms Selector">
+          <button
+            id="btn-tab-intro"
+            data-desc="Load obstacle 1: Instructions Hub."
+            class="px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)] accessible-focus"
+            aria-label="Jump to Obstacle Challenge Tab 1: Intro Hub"
+          >
+            1. Intro Hub
+          </button>
+          <button
+            id="btn-tab-mystery-alt"
+            data-desc="Load obstacle 2: Alternate Image tags audit."
+            class="px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#141417] text-neutral-400 border-neutral-800 accessible-focus"
+            aria-label="Jump to Obstacle Challenge Tab 2: Alt Audit Room"
+          >
+            2. Image Alt Room
+          </button>
+          <button
+            id="btn-tab-link-safari"
+            data-desc="Load obstacle 3: Ambiguous logical link testing."
+            class="px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#141417] text-neutral-400 border-neutral-800 accessible-focus"
+            aria-label="Jump to Obstacle Challenge Tab 3: Link label hunt"
+          >
+            3. Link Hunt Room
+          </button>
+        </div>
+
+        <!-- Simulated Voice output subtitle -->
+        <div class="p-4 bg-[#070709] border border-neutral-800 text-left font-mono text-xs max-w-xl mx-auto mb-6">
+          <span class="text-[#CCFF00] font-bold uppercase text-[9px] tracking-widest block mb-1">
+            Simulated Screen Reader Telemetry:
+          </span>
+          <p id="closed-accessibility-hud" class="text-[#CCFF00] min-h-[48px] flex items-center leading-relaxed">
+            &gt; Eyes closed simulator enabled. Visual styling is now masked to simulate blindness.
+          </p>
+        </div>
+
+        <!-- Challenge Contents Box -->
+        <div class="border border-neutral-850 bg-[#070709] p-5 max-w-xl mx-auto mb-8 rounded-xs text-left font-mono text-xs">
+          
+          <!-- Tab 1: Intro Hub Content -->
+          <div id="challenge-intro-content" class="active-challenge-room">
+            <h4 class="text-[10px] text-[#CCFF00] uppercase font-bold tracking-widest mb-2">Introduction Module</h4>
+            <p class="text-neutral-400 leading-relaxed mb-4">
+              In this mode, elements will speak out loud when you click or focus into them! 
+              Challenge: Navigate to the other challenge tabs by pressing <kbd class="bg-neutral-900 border border-neutral-800 text-white px-1 py-0.5 font-mono text-[9px]">Tab</kbd> or clicking them, then test your accessible design abilities.
+            </p>
+            <p class="text-neutral-500 italic text-[10px]">
+              Press Shift+Tab to back up, and hit Tab to explore active challenge modules.
+            </p>
+          </div>
+
+          <!-- Tab 2: Alternate text quiz -->
+          <div id="challenge-alt-content" class="active-challenge-room hidden">
+            <h4 class="text-[10px] text-[#CCFF00] uppercase font-bold tracking-widest mb-2">Obstacle 1: Image Alternative tag test</h4>
+            <p class="text-neutral-400 leading-relaxed mb-4">
+              Examine image code buttons A and B. Listen carefully to which code snippet explains the picture perfectly instead of outputting raw text.
+            </p>
+            
+            <div class="flex gap-2">
+              <button
+                id="challenge-audit-opt-a"
+                data-desc="Audit sample choice A image reference parameters."
+                class="px-4 py-2 font-mono text-xs font-bold border border-neutral-800 bg-[#0E0E10] text-[#CCFF00] hover:border-[#CCFF00] cursor-pointer flex-1 transition-all accessible-focus"
+              >
+                Audit Option A
+              </button>
+              <button
+                id="challenge-audit-opt-b"
+                data-desc="Audit sample choice B image descriptions."
+                class="px-4 py-2 font-mono text-xs font-bold border border-neutral-800 bg-[#0E0E10] text-[#CCFF00] hover:border-[#CCFF00] cursor-pointer flex-1 transition-all accessible-focus"
+              >
+                Audit Option B
+              </button>
+            </div>
+
+            <!-- Quiz feedback node slider -->
+            <div id="challenge-1-feedback" class="mt-4 p-3 bg-neutral-900 border-l border-[#CCFF00] text-[11px] text-neutral-300 hidden"></div>
+          </div>
+
+          <!-- Tab 3: Link hunting -->
+          <div id="challenge-safari-content" class="active-challenge-room hidden">
+            <h4 class="text-[10px] text-[#CCFF00] uppercase font-bold tracking-widest mb-2">Obstacle 2: Link Label Safari</h4>
+            <p class="text-neutral-400 leading-relaxed mb-4">
+              A blind user navigates sequential page interactive anchors. Try focusing the buttons below and find the explicit target anchor for 'Download Syllabus PDF'.
+            </p>
+
+            <div class="flex flex-col gap-2">
+              <button
+                id="challenge-safari-btn-1"
+                data-desc="Auditory text of course link option A."
+                class="px-3 py-2 font-mono text-left border border-neutral-850 bg-transparent text-[#CCFF00] hover:border-[#CCFF00] cursor-pointer transition-all accessible-focus"
+              >
+                Course Portal Anchor 1
+              </button>
+              <button
+                id="challenge-safari-btn-2"
+                data-desc="Auditory text of course link option B."
+                class="px-3 py-2 font-mono text-left border border-neutral-850 bg-transparent text-[#CCFF00] hover:border-[#CCFF00] cursor-pointer transition-all accessible-focus"
+              >
+                Course Portal Anchor 2
+              </button>
+              <button
+                id="challenge-safari-btn-3"
+                data-desc="Auditory text of course link option C."
+                class="px-3 py-2 font-mono text-left border border-neutral-750 bg-transparent text-[#CCFF00] hover:border-[#CCFF00] cursor-pointer transition-all accessible-focus"
+              >
+                Course Portal Anchor 3
+              </button>
+            </div>
+
+            <!-- Quiz feedback 2 node slider -->
+            <div id="challenge-2-feedback" class="mt-4 p-3 bg-neutral-900 border-l border-green-500 text-[11px] text-green-400 flex items-center gap-2 font-bold uppercase tracking-wider hidden"></div>
+          </div>
+
+        </div>
+
+        <button
+          id="overlay-eyes-toggle-exit-btn"
+          data-desc="Deactivate overlay simulation and return to parent visual simulator board."
+          class="py-3 px-8 bg-[#CCFF00] hover:bg-[#e2ff42] text-[#070708] font-mono font-black text-xs uppercase tracking-wider cursor-pointer border-none shadow-[0_0_15px_rgba(204,255,0,0.2)] accessible-focus"
+          aria-label="Exit simulated blackout mode and return to main interface page"
+        >
+          Exit Simulation Toggle (Esc)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main JavaScript loader (Core logic module) -->
+    <script type="module" src="/src/app.js"></script>
   </body>
 </html>
-

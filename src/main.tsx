@@ -1,10 +1,4 @@
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
+// SEEWITHSOUND Core Application entrypoint.
+// Bypassed React virtual DOM wrapper to serve clean, native HTML, CSS, and plain JavaScript.
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+console.log("SeeWithSound native HTML, CSS, and plain JavaScript running successfully.");
