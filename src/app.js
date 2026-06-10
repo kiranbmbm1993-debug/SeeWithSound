@@ -388,9 +388,9 @@ function selectPreset(key) {
     const btn = document.getElementById(`preset-${pk}-btn`);
     if (btn) {
       if (pk === key) {
-        btn.className = "px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)]";
+        btn.className = "preset-selector-btn active accessible-focus";
       } else {
-        btn.className = "px-3 py-1.5 border font-mono text-xs font-bold tracking-tight rounded-xs cursor-pointer bg-[#141417] text-neutral-400 border-[#1F1F23] hover:text-white hover:bg-neutral-800";
+        btn.className = "preset-selector-btn inactive accessible-focus";
       }
     }
   });
@@ -473,22 +473,22 @@ function switchChallenge(challengeName) {
   rooms.forEach(rm => {
     const btn = document.getElementById(`btn-tab-${rm}`);
     if (btn) {
-      btn.className = "px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#141417] text-neutral-400 border-neutral-800";
+      btn.className = "tab-nav-btn accessible-focus";
     }
   });
   
   // Show active tab
   if (challengeName === "intro") {
     document.getElementById("challenge-intro-content").classList.remove("hidden");
-    document.getElementById("btn-tab-intro").className = "px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)]";
+    document.getElementById("btn-tab-intro").className = "tab-nav-btn active accessible-focus";
     speakImmediate("Obstacle Intro panel dashboard active.", true);
   } else if (challengeName === "mystery-alt") {
     document.getElementById("challenge-alt-content").classList.remove("hidden");
-    document.getElementById("btn-tab-mystery-alt").className = "px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)]";
+    document.getElementById("btn-tab-mystery-alt").className = "tab-nav-btn active accessible-focus";
     speakImmediate("Obstacle Image Alt audit workspace loaded.", true);
   } else if (challengeName === "link-safari") {
     document.getElementById("challenge-safari-content").classList.remove("hidden");
-    document.getElementById("btn-tab-link-safari").className = "px-3 py-1.5 font-mono text-xs border cursor-pointer uppercase transition-all bg-[#CCFF00] text-black border-[#CCFF00] shadow-[0_0_10px_rgba(204,255,0,0.2)]";
+    document.getElementById("btn-tab-link-safari").className = "tab-nav-btn active accessible-focus";
     speakImmediate("Obstacle Link label safari target active.", true);
   }
 }
@@ -503,15 +503,15 @@ function selectChallenge1Option(option) {
   
   if (option === 'B') {
     feedbackNode.innerHTML = `
-      <span class="flex items-center gap-2 text-green-400 font-bold uppercase tracking-wider">
-        <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span class="challenge-result-success">
+        <svg class="svg-stroke" style="width: 14px; height: 14px; stroke: currentColor;" viewBox="0 0 24 24" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Correct choice! Proper alt descriptions build equal opportunities.
       </span>
     `;
     speakImmediate("Correct choice! Proper alt descriptions build equal opportunities.", true);
   } else {
     feedbackNode.innerHTML = `
-      <span class="text-red-400 font-bold uppercase tracking-wider">
+      <span class="challenge-result-failure">
         Option A left the user clueless. Scribes need valid descriptive alternate parameters!
       </span>
     `;
@@ -527,8 +527,8 @@ function completeChallenge2() {
   const feedbackNode = document.getElementById("challenge-2-feedback");
   feedbackNode.classList.remove("hidden");
   feedbackNode.innerHTML = `
-    <span class="flex items-center gap-2 text-green-400 font-bold uppercase tracking-wider">
-      <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span class="challenge-result-success">
+      <svg class="svg-stroke" style="width: 14px; height: 14px; stroke: currentColor;" viewBox="0 0 24 24" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       Outstanding! Sighted users saved valuable seconds of sequential browsing.
     </span>
   `;
