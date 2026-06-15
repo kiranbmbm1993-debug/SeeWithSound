@@ -33,6 +33,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Use a Personal Access Token (store it in repo secrets as PAGES_PAT)
+          # GITHUB_TOKEN cannot enable Pages; a PAT with `repo` scope or Pages write
+          # permission is required when `enablement` is true.
+          token: ${{ secrets.PAGES_PAT }}
+          enablement: true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
